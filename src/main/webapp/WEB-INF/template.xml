@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE tiles-definitions PUBLIC "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN" "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+
+<tiles-definitions>
+	
+	<definition name="default" template="/WEB-INF/template/template.jsp">
+		<put-attribute name="title" value="Home page" />
+		<put-attribute name="header" value="/WEB-INF/template/header.jsp" />
+		<put-attribute name="navigation" value="/WEB-INF/template/navigation.jsp" />
+		<put-attribute name="content" value="/WEB-INF/template/content.jsp" />
+		<put-attribute name="footer" value="/WEB-INF/template/footer.jsp" />
+	</definition>
+	
+	<definition name="login" template="/WEB-INF/views/login.jsp" />
+	<definition name="access-denied" template="/WEB-INF/views/access-denied.jsp" />
+	
+	<!-- users -->
+	<definition name="register" extends="default">
+		<put-attribute name="title" value="register user" />
+		<put-attribute name="content" value="/WEB-INF/views/users/register-form.jsp" />
+	</definition>
+	
+	<definition name="user-list" extends="default">
+		<put-attribute name="title" value="user list" />
+		<put-attribute name="content" value="/WEB-INF/views/users/list-of-users.jsp" />
+	</definition>
+	
+	<definition name="user-edit" extends="default">
+		<put-attribute name="title" value="edit user" />
+		<put-attribute name="content" value="/WEB-INF/views/users/edit-user-form.jsp" />
+	</definition>
+	
+	<!-- articles -->
+	<definition name="article-list" extends="default">
+		<put-attribute name="title" value="article list" />
+		<put-attribute name="content" value="/WEB-INF/views/articles/list-of-articles.jsp" />
+	</definition>
+	
+	<definition name="article-show" extends="default">
+		<put-attribute name="title" value="article details" />
+		<put-attribute name="content" value="/WEB-INF/views/articles/show-article.jsp" />
+	</definition>
+	
+	<definition name="article-add" extends="default">
+		<put-attribute name="title" value="add article" />
+		<put-attribute name="content" value="/WEB-INF/views/articles/add-article-form.jsp" />
+	</definition>
+	
+	<definition name="article-edit" extends="default">
+		<put-attribute name="title" value="add article" />
+		<put-attribute name="content" value="/WEB-INF/views/articles/edit-article-form.jsp" />
+	</definition>
+	
+	<!-- comments -->
+	<definition name="comment-add" extends="default">
+		<put-attribute name="title" value="add comment" />
+		<put-attribute name="content" value="/WEB-INF/views/comments/add-comment-form.jsp" />
+	</definition>
+	
+	<definition name="comment-edit" extends="default">
+		<put-attribute name="title" value="edit comment" />
+		<put-attribute name="content" value="/WEB-INF/views/comments/edit-comment-form.jsp" />
+	</definition>
+	
+</tiles-definitions>

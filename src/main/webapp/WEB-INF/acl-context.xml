@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+ 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ 	xmlns:tx="http://www.springframework.org/schema/tx"
+ 	xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:security="http://www.springframework.org/schema/security"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:context="http://www.springframework.org/schema/context"
+ 	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+ 	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/security
+		http://www.springframework.org/schema/security/spring-security.xsd
+		http://www.springframework.org/schema/jdbc
+		http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/util
+		http://www.springframework.org/schema/util/spring-util.xsd">
+
+	<!-- Enables Method Security and Expression-based access control -->
+	<security:global-method-security pre-post-annotations="enabled">
+		<!-- Enables custom expression handler -->
+	  	<security:expression-handler ref="expressionHandler" />
+	</security:global-method-security>
+
+	 <!-- See 15.3.2 Built-In Expression @http://static.springsource.org/spring-security/site/docs/3.0.x/reference/el-access.html#el-permission-evaluator -->
+	 <bean id="expressionHandler" class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
+		  <!-- To use hasPermission() in expressions, configure a PermissionEvaluator -->
+		  <property name="permissionEvaluator" ref="permissionEvaluator" />
+	 </bean>
+
+	 <!-- Declare a custom PermissionEvaluator We'll rely on the standard AclPermissionEvaluator implementation -->
+	 <bean class="org.springframework.security.acls.AclPermissionEvaluator" id="permissionEvaluator">
+	 	<constructor-arg ref="aclService" />
+	 	<property name="permissionFactory" ref="permissionFactory" />
+	 </bean>
+
+	<!-- Declare an acl cache-->
+    <bean id="aclCache" class="org.springframework.security.acls.domain.EhCacheBasedAclCache">
+        <constructor-arg>
+            <bean class="org.springframework.cache.ehcache.EhCacheFactoryBean" >
+                <property name="cacheManager">
+                	<bean class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean" />
+                </property>
+                <property name="cacheName" value="aclCache"/>
+            </bean>
+        </constructor-arg>
+        <constructor-arg ref="permissionGrantingStrategy" />
+        <constructor-arg ref="aclAuthorizationStrategy" />
+    </bean>
+
+    <!-- Declare a lookup strategy-->
+ 	<bean id="lookupStrategy" class="org.springframework.security.acls.jdbc.BasicLookupStrategy">
+        <constructor-arg ref="dataSource"/>
+        <constructor-arg ref="aclCache"/>
+        <constructor-arg ref="aclAuthorizationStrategy"/>
+        <constructor-arg ref="permissionGrantingStrategy" />
+        <property name="permissionFactory" ref="permissionFactory" />
+    </bean>
+
+    <!-- Declare an acl authorization strategy-->
+    <bean id="aclAuthorizationStrategy" class="org.springframework.security.acls.domain.AclAuthorizationStrategyImpl">
+        <constructor-arg>
+            <list>
+                <bean class="org.springframework.security.core.authority.SimpleGrantedAuthority">
+                    <constructor-arg value="ROLE_ADMIN"/>
+                </bean>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <!-- Declare an acl service -->
+	<bean class="org.springframework.security.acls.jdbc.JdbcMutableAclService" id="aclService">
+		<constructor-arg ref="dataSource" />
+        <constructor-arg ref="lookupStrategy" />
+        <constructor-arg ref="aclCache" />
+        <property name="sidIdentityQuery" value="select currval(pg_get_serial_sequence('acl_sid', 'id'))" />
+		<property name="classIdentityQuery" value="select currval(pg_get_serial_sequence('acl_class', 'id'))" />
+	</bean>
+
+	<!-- Declare an audit logger-->
+    <bean id="auditLogger" class="org.springframework.security.acls.domain.ConsoleAuditLogger"/>
+
+	<!-- Declare bitwise permission granting strategy -->
+	<bean id="permissionGrantingStrategy" class="pl.edu.agh.blog.config.BitwisePermissionGrantingStrategy">
+		<constructor-arg ref="auditLogger" />
+	</bean>
+
+	<!--  class="org.springframework.security.acls.domain.DefaultPermissionFactory" -->
+	<bean id="permissionFactory" class="org.springframework.security.acls.domain.DefaultPermissionFactory">
+		<constructor-arg value="org.springframework.security.acls.domain.BasePermission" />
+	</bean>
+</beans>
