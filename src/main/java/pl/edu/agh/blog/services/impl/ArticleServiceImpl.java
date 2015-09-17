@@ -24,6 +24,7 @@ public class ArticleServiceImpl extends AbstractServiceImpl implements ArticleSe
 		this.createAcl(article.getClass(), article.getId());
 	}
 
+	
 	@Override
 	public void updateArticle(Article article) {
 		articleDao.updateArticle(article);
