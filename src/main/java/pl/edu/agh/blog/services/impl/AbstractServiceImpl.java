@@ -2,8 +2,6 @@ package pl.edu.agh.blog.services.impl;
 
 import java.util.ListIterator;
 
-import javax.transaction.Transactional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PermissionFactory;
@@ -17,17 +15,14 @@ import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 
-import pl.edu.agh.blog.services.intf.AbstractService;
-
-public abstract class AbstractServiceImpl implements AbstractService {
+public abstract class AbstractServiceImpl {
 	
 	@Autowired
-	private MutableAclService mutableAclService;
+	protected MutableAclService mutableAclService;
 	
 	@Autowired
 	private PermissionFactory permissionFactory;
 	
-	@Transactional
 	public void createAcl(Class<?> clazz, long id, String principal, Permission permissions) {
 
 		ObjectIdentity oid = new ObjectIdentityImpl(clazz, id);
@@ -42,15 +37,15 @@ public abstract class AbstractServiceImpl implements AbstractService {
 		acl.insertAce(acl.getEntries().size(), permissions, new PrincipalSid(principal), true);
 		mutableAclService.updateAcl(acl);
 	}
-
+	
 	protected void createAcl(Class<?> clazz, long id) {
 
 		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		createAcl(clazz, id, user.getUsername(), permissionFactory.buildFromMask(31) );
 
-	}
+	}	
 	
-	@Override
+	//@Override
 	public void updateAcl(String type, long id, String principal, Permission newPermission) throws ClassNotFoundException {
 
 		Class<?> clazz = Class.forName(type);
@@ -75,6 +70,28 @@ public abstract class AbstractServiceImpl implements AbstractService {
 
 	}
 	
+	protected void deleteAclEntries(MutableAcl acl) {
+		
+		ListIterator<AccessControlEntry> it = acl.getEntries().listIterator();
+		
+		int i = 0;
+		while (it.hasNext()) {
+			
+			AccessControlEntry ace = it.next();
+			if (ace.getSid().equals(acl.getOwner())) {
+				i++;
+				continue;
+			}
+						
+			acl.deleteAce(i);
+		}
+		
+	}
+	
+	protected void insertAclEntry(MutableAcl acl, Permission permission, String principal, boolean granting) {		
+		acl.insertAce(acl.getEntries().size(), permission, new PrincipalSid(principal), granting);
+	}
+	
 	protected void deleteAcl(Class<?> clazz, long id) {
 
 		ObjectIdentity oid = new ObjectIdentityImpl(clazz, id);
@@ -82,7 +99,7 @@ public abstract class AbstractServiceImpl implements AbstractService {
 
 	}
 
-	@Override
+	//@Override
 	public void deleteAcl(String type, long id, String principal) throws ClassNotFoundException {
 
 		Class<?> clazz = Class.forName(type);

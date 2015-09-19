@@ -3,6 +3,23 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/security/tags" prefix="security" %>
 
+<script type="text/javascript">
+$(document).ready(function() {
+	
+	$('input[value="PUB"]').prop("checked", true);
+	$('tr.permittedUsers').hide();
+	
+	$('input[type="radio"]').click(function() {
+		if ( $(this).val() == 'PRV' ) {
+			$('tr.permittedUsers').show();
+		} else {
+			$('tr.permittedUsers').hide();
+		}
+	});
+	
+});
+</script>
+
 <h2>Add article</h2>
 
 <form:form method="POST" commandName="article" action="${pageContext.request.contextPath}/article/add">
@@ -19,13 +36,11 @@
 		<tr>
 			<td>Access type:</td>
 			<td>
-				<form:select path="access">
-					<option value="PUB">Public</option>
-					<option value="PRV">Private</option>
-				</form:select>
+				<form:radiobutton path="access" value="PUB" />Public
+				<form:radiobutton path="access" value="PRV" />Private
 			</td>
 		</tr>
-		<tr>
+		<tr class="permittedUsers">
 			<td>Users:</td>
 			<td>
 				<select name="permittedUsers" multiple="multiple">

@@ -5,13 +5,13 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -58,12 +58,12 @@ public class ArticlesController {
 		
 		ModelAndView modelAndView = new ModelAndView("article-add");		
 		modelAndView.addObject("article", new Article());
-		modelAndView.addObject("users", userService.getUsers());	
+		modelAndView.addObject("users", userService.getUsers());
 		return modelAndView;		
 	}
 	
-	@RequestMapping(value = "/add", method = RequestMethod.POST, params = { "permittedUsers" } )
-	public ModelAndView addingArticle(@ModelAttribute Article article, String [] permittedUsers, final RedirectAttributes redirectAttributes) {
+	@RequestMapping(value = "/add", method = RequestMethod.POST)
+	public ModelAndView addingArticle(@ModelAttribute Article article, @RequestParam(value = "permittedUsers", required = false) String [] permittedUsers, final RedirectAttributes redirectAttributes) {
 		
 		String authorName = ((org.springframework.security.core.userdetails.User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
 		User author = userService.getUserByUsername(authorName);
@@ -72,15 +72,7 @@ public class ArticlesController {
 		if (author != null) {
 			
 			article.setAuthor(author);
-			articleService.addArticle(article);
-			
-			// give permissions selected users to view the article
-			if (article.getAccess().equals("PRV")) {
-				for (String username : permittedUsers) {
-					articleService.createAcl(article.getClass(), article.getId(), username, BasePermission.READ);
-				}
-			}
-						
+			articleService.addArticle(article, permittedUsers);						
 			redirectAttributes.addFlashAttribute("FLASH_SUCCESS", "The article has been successfully created.");
 			
 		} else {			
@@ -95,13 +87,15 @@ public class ArticlesController {
 		
 		Article article = articleService.getArticleBySlug(slug);
 		ModelAndView modelAndView = new ModelAndView("article-edit");		
-		modelAndView.addObject("article", article);		
+		modelAndView.addObject("article", article);
+		modelAndView.addObject("users", userService.getUsers());
+		modelAndView.addObject("permittedUsers", articleService.getPermittedUsers(article));
 		return modelAndView;		
 	}
 	
 	@RequestMapping(value = "/edit", method = RequestMethod.POST)
-	public ModelAndView edittingArticle(@ModelAttribute Article article, final RedirectAttributes redirectAttributes) {	
-		articleService.updateArticle(article);
+	public ModelAndView edittingArticle(@ModelAttribute Article article, @RequestParam(value = "permittedUsers", required = false) String [] permittedUsers, final RedirectAttributes redirectAttributes) {	
+		articleService.updateArticle(article, permittedUsers);
 		redirectAttributes.addFlashAttribute("FLASH_SUCCESS", "The article has been successfully edited.");
 		return new ModelAndView("redirect:/article/list");		
 	}

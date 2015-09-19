@@ -1,8 +1,15 @@
 package pl.edu.agh.blog.services.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.domain.ObjectIdentityImpl;
+import org.springframework.security.acls.domain.PrincipalSid;
+import org.springframework.security.acls.model.AccessControlEntry;
+import org.springframework.security.acls.model.MutableAcl;
+import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,15 +26,66 @@ public class ArticleServiceImpl extends AbstractServiceImpl implements ArticleSe
 	private ArticleDao articleDao;
 	
 	@Override
-	public void addArticle(Article article) {
+	public void addArticle(Article article, String [] permittedUsers) {
+		
 		articleDao.addArticle(article);
-		this.createAcl(article.getClass(), article.getId());
+		
+		createAcl(article.getClass(), article.getId());
+		if (permittedUsers != null) createReaderPermission(article, permittedUsers);
+		
+		
 	}
-
+		
+	private void createReaderPermission(Article article, String [] permittedUsers) {
+		
+		ObjectIdentity oid = new ObjectIdentityImpl(article);
+		MutableAcl acl = (MutableAcl) mutableAclService.readAclById(oid);
+		
+		for (String username : permittedUsers) {
+			this.insertAclEntry(acl, BasePermission.READ, username, true);
+		}
+		
+		mutableAclService.updateAcl(acl);		
+	}
 	
 	@Override
-	public void updateArticle(Article article) {
+	public void updateArticle(Article article, String [] permittedUsers) {
 		articleDao.updateArticle(article);
+		
+		updateAcl(article, permittedUsers);
+	}
+	
+	private void updateAcl(Article article, String [] permittedUsers) {
+		
+		ObjectIdentity oid = new ObjectIdentityImpl(article);
+		MutableAcl acl = (MutableAcl) mutableAclService.readAclById(oid);
+		
+		this.deleteAclEntries(acl);
+		if (permittedUsers != null) {
+			for (String username : permittedUsers) {
+				this.insertAclEntry(acl, BasePermission.READ, username, true);
+			}
+		}
+				
+		mutableAclService.updateAcl(acl);
+	}
+	
+	public ArrayList<String> getPermittedUsers(Article article) {
+		
+		ArrayList<String> permittedUsers = new ArrayList<String>();
+		ObjectIdentity oid = new ObjectIdentityImpl(article);
+		MutableAcl acl = (MutableAcl) mutableAclService.readAclById(oid);
+		
+		for (AccessControlEntry ace : acl.getEntries()) {
+			
+			PrincipalSid sid = (PrincipalSid) ace.getSid();
+			if (sid.getPrincipal().equals(article.getAuthor().getUsername())) // skip owner
+				continue;
+			
+			permittedUsers.add(sid.getPrincipal());
+		}
+		
+		return permittedUsers;		
 	}
 
 	@Override
@@ -47,10 +105,17 @@ public class ArticleServiceImpl extends AbstractServiceImpl implements ArticleSe
 	
 	@Override
 	public void deleteArticle(String slug) {
+		
 		// TODO temporary
 		Article article = articleDao.getArticleBySlug(slug);
 		articleDao.deleteArticle(slug);
-		deleteAcl(article.getClass(), article.getId());
+		
+		
+		for (Comment comment : article.getComments()) {
+			deleteAcl(comment.getClass(), comment.getId());
+		}
+		
+		deleteAcl(article.getClass(), article.getId());		
 	}
 
 	@Override
@@ -77,7 +142,8 @@ public class ArticleServiceImpl extends AbstractServiceImpl implements ArticleSe
 
 	@Override
 	public void deleteComment(int id) {
-		articleDao.deleteComment(id);		
+		articleDao.deleteComment(id);
+		deleteAcl(Comment.class, id);
 	}
 
 }

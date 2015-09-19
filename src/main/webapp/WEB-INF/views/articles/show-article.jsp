@@ -15,21 +15,25 @@
 		<c:otherwise>Private</c:otherwise>
 	</c:choose>
 	
-	<security:accesscontrollist hasPermission="READ,WRITE" domainObject="${article}">
-						<a href="<c:url value='/article/edit/${article.slug}' />">Edit article</a>
-	</security:accesscontrollist>
+	<security:authorize access="hasRole('ROLE_ADMIN')" var="adminAccess" />
+	<security:authorize access="hasRole('ROLE_EDITOR')">
+		<security:accesscontrollist hasPermission="WRITE" domainObject="${article}" var="editorEditAccess" />
+		<security:accesscontrollist hasPermission="DELETE" domainObject="${article}" var="editorDeleteAccess" />
+	</security:authorize>
 	
-	<security:accesscontrollist hasPermission="READ,DELETE" domainObject="${article}">
-		<a href="<c:url value='/article/delete/${article.slug}' />">Delete article</a>
-	</security:accesscontrollist>
-
-	Comments (${article.comments.size()})
-	<c:if test="${pageContext.request.userPrincipal.name != null}">
-		<a href="<c:url value='/article/${article.slug}/comment/add' />">Add comment</a>
+	<c:if test="${adminAccess || editorEditAccess}">
+		<a href="<c:url value='/article/edit/${article.slug}' />">Edit article</a>
 	</c:if>
 	
+	<c:if test="${adminAccess || editorDeleteAccess}">
+		<a href="<c:url value='/article/delete/${article.slug}' />">Delete article</a>
+	</c:if>
+
+	Comments (${article.comments.size()})
+
 	<security:authorize access="isAuthenticated()">
 		
+		<a href="<c:url value='/article/${article.slug}/comment/add' />">Add comment</a>
 		<c:forEach var="comment" items="${article.comments}">
 			<div class="comment">
 				<div class="comment-content">${comment.content}</div>
