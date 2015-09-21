@@ -12,8 +12,15 @@
 		<put-attribute name="footer" value="/WEB-INF/template/footer.jsp" />
 	</definition>
 	
-	<definition name="login" template="/WEB-INF/views/login.jsp" />
-	<definition name="access-denied" template="/WEB-INF/views/access-denied.jsp" />
+	<definition name="access-denied" extends="default">
+		<put-attribute name="title" value="access denied" />
+		<put-attribute name="content" value="/WEB-INF/views/access-denied.jsp" />
+	</definition>
+	
+	<definition name="login" extends="default">
+		<put-attribute name="title" value="login form" />
+		<put-attribute name="content" value="/WEB-INF/views/login.jsp" />
+	</definition>
 	
 	<!-- users -->
 	<definition name="register" extends="default">

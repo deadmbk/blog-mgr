@@ -1,21 +1,31 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 
-<h2>Edit form</h2>
-<form:form method="POST" commandName="comment" action="${pageContext.request.contextPath}/article/${slug}/comment/edit">
-<form:hidden path="id" />
-<table>
-	<tbody>
-		<tr>
-			<td>Content:</td>
-			<td><form:textarea path="content" /></td>
-		</tr>
-		<tr>
-			<td><input type="submit" value="Edit" class="button" /></td>
-			<td></td>
-		</tr>
-	</tbody>
-</table>
+<section>
 
-</form:form>
+	<h3>Edit comment</h3>
+	<form:form method="POST" commandName="comment"
+		action="${pageContext.request.contextPath}/article/${slug}/comment/edit"
+		class="form-horizontal">
+
+		<form:hidden path="id" />
+
+		<div class="form-group">
+			<label for="content" class="col-sm-2 control-label">Comment</label>
+			<div class="col-sm-10">
+				<form:textarea path="content" class="form-control" />
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="col-sm-2"></div>
+			<div class="col-sm-10">
+				<input type="submit" value="Edit comment" class="btn btn-primary" />
+			</div>
+		</div>
+
+	</form:form>
+	
+</section>

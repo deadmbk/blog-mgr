@@ -1,19 +1,27 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 
-<h2>Add comment</h2>
+<section>
+	<h3>Add comment</h3>
 
-<form:form method="POST" commandName="comment" action="${pageContext.request.contextPath}/article/${slug}/comment/add">
-<table>
-	<tbody>
-		<tr>
-			<td>Content:</td>
-			<td><form:textarea path="content" /></td>
-		</tr>
-		<tr>
-			<td><input type="submit" value="Add comment" class="button" /></td>
-		</tr>
-	</tbody>
-</table>
+	<form:form method="POST" commandName="comment"
+		action="${pageContext.request.contextPath}/article/${slug}/comment/add"
+		class="form-horizontal">
 
-</form:form>
+		<div class="form-group">
+			<label for="content" class="col-sm-2 control-label">Comment</label>
+			<div class="col-sm-10">
+				<form:textarea path="content" class="form-control" />
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="col-sm-2"></div>
+			<div class="col-sm-10">
+				<input type="submit" value="Add comment" class="btn btn-primary" />
+			</div>
+		</div>
+
+	</form:form>
+</section>

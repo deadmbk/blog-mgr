@@ -2,6 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="joda" uri="http://www.joda.org/joda/time/tags" %>
 <%@ taglib uri="http://www.springframework.org/security/tags" prefix="security" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="custom" %>
 
 <h2>${article.title}</h2>
 
@@ -15,19 +16,8 @@
 		<c:otherwise>Private</c:otherwise>
 	</c:choose>
 	
-	<security:authorize access="hasRole('ROLE_ADMIN')" var="adminAccess" />
-	<security:authorize access="hasRole('ROLE_EDITOR')">
-		<security:accesscontrollist hasPermission="WRITE" domainObject="${article}" var="editorEditAccess" />
-		<security:accesscontrollist hasPermission="DELETE" domainObject="${article}" var="editorDeleteAccess" />
-	</security:authorize>
-	
-	<c:if test="${adminAccess || editorEditAccess}">
-		<a href="<c:url value='/article/edit/${article.slug}' />">Edit article</a>
-	</c:if>
-	
-	<c:if test="${adminAccess || editorDeleteAccess}">
-		<a href="<c:url value='/article/delete/${article.slug}' />">Delete article</a>
-	</c:if>
+	<custom:articleLink url="/article/edit/${article.slug}" text="Edit article" hasPermission="WRITE" domainObject="${article}" />
+	<custom:articleLink url="/article/delete/${article.slug}" text="Delete article" hasPermission="DELETE" domainObject="${article}" />
 
 	Comments (${article.comments.size()})
 

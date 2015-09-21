@@ -3,58 +3,56 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/security/tags" prefix="security" %>
 
-<script type="text/javascript">
-$(document).ready(function() {
-	
-	$('input[value="PUB"]').prop("checked", true);
-	$('tr.permittedUsers').hide();
-	
-	$('input[type="radio"]').click(function() {
-		if ( $(this).val() == 'PRV' ) {
-			$('tr.permittedUsers').show();
-		} else {
-			$('tr.permittedUsers').hide();
-		}
-	});
-	
-});
-</script>
+<section>
+	<h2>Add article</h2>
 
-<h2>Add article</h2>
+	<form:form method="POST" commandName="article"
+		action="${pageContext.request.contextPath}/article/add"
+		class="form-horizontal">
 
-<form:form method="POST" commandName="article" action="${pageContext.request.contextPath}/article/add">
-<table>
-	<tbody>
-		<tr>
-			<td>Title:</td>
-			<td><form:input path="title" /></td>
-		</tr>
-		<tr>
-			<td>Content:</td>
-			<td><form:textarea path="content" /></td>
-		</tr>
-		<tr>
-			<td>Access type:</td>
-			<td>
-				<form:radiobutton path="access" value="PUB" />Public
-				<form:radiobutton path="access" value="PRV" />Private
-			</td>
-		</tr>
-		<tr class="permittedUsers">
-			<td>Users:</td>
-			<td>
-				<select name="permittedUsers" multiple="multiple">
+		<div class="form-group">
+			<label for="title" class="col-sm-2 control-label">Title</label>
+			<div class="col-sm-10">
+				<form:input path="title" class="form-control" placeholder="Title" />
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label for="content" class="col-sm-2 control-label">Content</label>
+			<div class="col-sm-10">
+				<form:textarea path="content" class="form-control" rows="6" />
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label class="col-sm-2 control-label">Access type</label>
+			<div class="col-sm-10">
+				<label class="radio-inline"> <form:radiobutton path="access"
+						value="PUB" checked="checked" /> Public
+				</label> <label class="radio-inline"> <form:radiobutton
+						path="access" value="PRV" /> Private
+				</label>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label class="col-sm-2 control-label permitted-users">Users</label>
+			<div class="col-sm-10 permitted-users">
+				<select name="permittedUsers" multiple="multiple"
+					class="form-control" size="5">
 					<c:forEach var="user" items="${users}">
 						<option value="${user.username}">${user.username}</option>
-					</c:forEach>					
+					</c:forEach>
 				</select>
-			</td>
-		</tr>
-		<tr>
-			<td><input type="submit" value="Add article" class="button" /></td>
-			<td></td>
-		</tr>
-	</tbody>
-</table>
+			</div>
+		</div>
 
-</form:form>
+		<div class="form-group">
+			<div class="col-sm-2"></div>
+			<div class="col-sm-10">
+				<input type="submit" value="Add article" class="btn btn-primary" />
+			</div>
+		</div>
+
+	</form:form>
+</section>
