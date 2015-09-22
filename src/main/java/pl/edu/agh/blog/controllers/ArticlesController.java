@@ -23,7 +23,7 @@ import pl.edu.agh.blog.services.intf.UserService;
 
 @Controller
 @RequestMapping(value="/article")
-public class ArticlesController {
+public class ArticlesController extends AbstractController {
 
 	private static final Logger logger = LoggerFactory.getLogger(ArticlesController.class);
 	
@@ -50,6 +50,7 @@ public class ArticlesController {
 		Article article = articleService.getArticleBySlug(slug);
 		
 		modelAndView.addObject("article", article);
+		modelAndView.addObject("permittedUsers", articleService.getPermittedUsers(article));
 		return modelAndView;		
 	}
 	
@@ -101,8 +102,9 @@ public class ArticlesController {
 	}
 	
 	@RequestMapping(value = "/delete/{slug}", method = RequestMethod.GET)
-	public ModelAndView deleteArticle(@PathVariable String slug, final RedirectAttributes redirectAttributes) {	
-		articleService.deleteArticle(slug);
+	public ModelAndView deleteArticle(@PathVariable String slug, final RedirectAttributes redirectAttributes) {
+		Article article = articleService.getArticleBySlug(slug);
+		articleService.deleteArticle(article.getId());
 		redirectAttributes.addFlashAttribute("FLASH_SUCCESS", "The article has been successfully deleted.");	
 		return new ModelAndView("redirect:/article/list");		
 	}

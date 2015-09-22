@@ -21,7 +21,7 @@ import pl.edu.agh.blog.services.intf.UserService;
 
 @Controller
 @RequestMapping(value="/user")
-public class UsersController {
+public class UsersController extends AbstractController {
 
 	private static final Logger logger = LoggerFactory.getLogger(UsersController.class);
 	

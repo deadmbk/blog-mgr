@@ -24,8 +24,8 @@
 				<joda:format value="${article.createdAt}" style="MM" /> |
 				
 				<c:choose>
-					<c:when test="${article.access eq 'PUB'}">Public</c:when>
-					<c:otherwise>Private</c:otherwise>
+					<c:when test="${article.access eq 'PUB'}"><span class="text-success">Public</span></c:when>
+					<c:otherwise><span class="text-danger">Private</span></c:otherwise>
 				</c:choose>
 			</div>
 		
@@ -40,6 +40,7 @@
 					</c:otherwise>
 				</c:choose>
 			</div>
+			
 		</div>
 		
 	</article>

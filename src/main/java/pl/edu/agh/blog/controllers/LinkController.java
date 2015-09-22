@@ -12,15 +12,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-public class LinkController {
+public class LinkController extends AbstractController {
 
 	private static final Logger logger = LoggerFactory.getLogger(LinkController.class);
 	
 	@RequestMapping(value = "/", method = RequestMethod.GET)
-	public ModelAndView home(@RequestParam(value = "logout", required = false) String logout, Locale locale, RedirectAttributes redirectAttributes) {
+	public ModelAndView home(@RequestParam(value = "logout", required = false) String logout, Locale locale) {
 		
 		ModelAndView modelAndView = new ModelAndView("default");
 		logger.info("Welcome home! The client locale is {}.", locale);

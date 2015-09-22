@@ -62,10 +62,26 @@ nav > h1 {
 	overflow: hidden;
 }
 
-.panel-footer .article-info {
+.panel-footer div:first-child {
 	float: left;
 }
 
-.panel-footer .article-comments {
+.panel-footer div:last-child {
 	float: right;
+}
+
+.article-content {
+	padding: 5px 3px;
+	font-family: Tahoma, sans-serif;
+	text-align: justify;
+	text-indent: 2em;
+}
+
+#comments {
+	margin-left: 50px;
+	font-size: 13px;
+}
+
+#comments > h3 {
+	display: none;
 }
