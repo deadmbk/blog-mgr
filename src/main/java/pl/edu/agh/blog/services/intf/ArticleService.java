@@ -25,6 +25,7 @@ public interface ArticleService extends AbstractService {
 	public Article getArticle(int id);
 	
 	/* unprotected method */
+	@PostAuthorize("returnObject.access == 'PUB' or hasPermission(returnObject, 'READ')")
 	public Article getArticleBySlug(String slug);
 	
 	// unused method
