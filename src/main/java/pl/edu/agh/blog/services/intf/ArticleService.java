@@ -28,12 +28,10 @@ public interface ArticleService extends AbstractService {
 	@PostAuthorize("returnObject.access == 'PUB' or hasPermission(returnObject, 'READ')")
 	public Article getArticleBySlug(String slug);
 	
-	// unused method
+	// TODO zabezpieczyæ
+	// @PreAuthorize("hasRole('ROLE_ADMIN') or hasPermission(#id, this.canonicalName, 'WRITE')")
 	public void deleteArticle(int id);
-	
-	// TODO 
-	public void deleteArticle(String slug);
-	
+
 	@PostFilter("filterObject.access == 'PUB' or hasPermission(filterObject, 'READ')")
 	public List<Article> getArticles();
 	
@@ -46,7 +44,8 @@ public interface ArticleService extends AbstractService {
 	// only for editting page, so "write" permission
 	@PostAuthorize("hasRole('ROLE_ADMIN') or hasPermission(returnObject, 'WRITE')")
 	public Comment getComment(int id);
-//	
+
+	// TODO write? nie delete?
 	@PreAuthorize("hasRole('ROLE_ADMIN') or hasPermission(#id, this.canonicalName, 'WRITE')")
 	public void deleteComment(int id);
 	

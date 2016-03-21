@@ -100,22 +100,15 @@ public class ArticleServiceImpl extends AbstractServiceImpl implements ArticleSe
 
 	@Override
 	public void deleteArticle(int id) {
+		
+		Article article = articleDao.getArticle(id);
 		articleDao.deleteArticle(id);
-	}
-	
-	@Override
-	public void deleteArticle(String slug) {
-		
-		// TODO temporary
-		Article article = articleDao.getArticleBySlug(slug);
-		articleDao.deleteArticle(slug);
-		
 		
 		for (Comment comment : article.getComments()) {
 			deleteAcl(comment.getClass(), comment.getId());
 		}
 		
-		deleteAcl(article.getClass(), article.getId());		
+		deleteAcl(article.getClass(), article.getId());
 	}
 
 	@Override
