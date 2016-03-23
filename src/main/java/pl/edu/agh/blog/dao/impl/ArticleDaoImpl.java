@@ -33,6 +33,7 @@ public class ArticleDaoImpl extends AbstractDaoImpl implements ArticleDao {
 		articleToUpdate.setTitle(article.getTitle());
 		
 		// TODO to powinno siê zmieniaæ?
+		// uzupe³niaj¹ce pytanie: czy slug powinien byæ sta³y, przypisany przy tworzeniu czy za ka¿dym razem gdy zmieni siê baza (tu tytu³) to slug powinien zostaæ zmieniony?
 		articleToUpdate.setSlug(generateSlugBasedOnTitle(article.getTitle()));
 		articleToUpdate.setContent(article.getContent());
 		articleToUpdate.setAccess(article.getAccess());
@@ -77,8 +78,7 @@ public class ArticleDaoImpl extends AbstractDaoImpl implements ArticleDao {
 
 	@Override
 	public void deleteArticle(int id) {
-		Article toDelete = new Article();
-		toDelete.setId(id);
+		Article toDelete = getArticle(id);
 		delete(toDelete);
 	}
 

@@ -101,6 +101,8 @@ public class ArticlesController extends AbstractController {
 		return new ModelAndView("redirect:/article/list");		
 	}
 	
+	// Usuwanie jest wyj¹tkowe, poniewa¿ nie mamy id ani obiektu, tylko slug. Konieczne jest najpierw pobranie obiektu i dalsze przetwarzanie na podstawie id.
+	// Nie mo¿na przes³aæ sluga a¿ do DAO, poniewa¿ serwis nie bêdzie mia³ mo¿liwoœci autoryzacji (na podstawie sluga nie okreœli praw dostêpu)
 	@RequestMapping(value = "/delete/{slug}", method = RequestMethod.GET)
 	public ModelAndView deleteArticle(@PathVariable String slug, final RedirectAttributes redirectAttributes) {
 		Article article = articleService.getArticleBySlug(slug);

@@ -12,24 +12,25 @@ import pl.edu.agh.blog.models.Comment;
 
 public interface ArticleService extends AbstractService {
 
-	public static final String canonicalName = Comment.class.getCanonicalName();
-	
+	public static final String commentCanonicalName = Comment.class.getCanonicalName();
+	public static final String articleCanonicalName = Article.class.getCanonicalName();
+		
 	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_EDITOR')")
 	public void addArticle(Article article, String [] permittedUsers);
 	
-	// #article.author.username == principal.username
+	// Alternatywnie, gdy chcemy autoryzowaæ ownera: #article.author.username == principal.username
+	// U¿yta wersja jest bardziej ogólna, gdyby zabraæ komuœ rolê edytora to nie bêdzie móg³ edytowaæ swojego artyku³u
 	@PreAuthorize("hasRole('ROLE_ADMIN') or ( hasRole('ROLE_EDITOR') and hasPermission(#article, 'WRITE') )")
 	public void updateArticle(Article article, String [] permittedUsers);
 	
 	// unused method
 	public Article getArticle(int id);
 	
-	/* unprotected method */
 	@PostAuthorize("returnObject.access == 'PUB' or hasPermission(returnObject, 'READ')")
 	public Article getArticleBySlug(String slug);
 	
-	// TODO zabezpieczyæ
-	// @PreAuthorize("hasRole('ROLE_ADMIN') or hasPermission(#id, this.canonicalName, 'WRITE')")
+	// TODO sprawdziæ czy dzia³a
+	@PreAuthorize("hasRole('ROLE_ADMIN') or ( hasRole('ROLE_EDITOR') and hasPermission(#id, this.articleCanonicalName, 'DELETE') )")
 	public void deleteArticle(int id);
 
 	@PostFilter("filterObject.access == 'PUB' or hasPermission(filterObject, 'READ')")
@@ -37,16 +38,15 @@ public interface ArticleService extends AbstractService {
 	
 	@PreAuthorize("isAuthenticated()")
 	public void addComment(String slug, Comment comment);
-//	
+
 	@PreAuthorize("hasRole('ROLE_ADMIN') or hasPermission(#comment, 'WRITE')")
 	public void updateComment(Comment comment);
-//	
+
 	// only for editting page, so "write" permission
 	@PostAuthorize("hasRole('ROLE_ADMIN') or hasPermission(returnObject, 'WRITE')")
 	public Comment getComment(int id);
 
-	// TODO write? nie delete?
-	@PreAuthorize("hasRole('ROLE_ADMIN') or hasPermission(#id, this.canonicalName, 'WRITE')")
+	@PreAuthorize("hasRole('ROLE_ADMIN') or hasPermission(#id, this.commentCanonicalName, 'DELETE')")
 	public void deleteComment(int id);
 	
 	public ArrayList<String> getPermittedUsers(Article article);

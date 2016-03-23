@@ -43,10 +43,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		 */
 		
 		http.authorizeRequests()
-				.antMatchers("/user/register", "/login").not().authenticated()	// not working for /login*	
-				.antMatchers("/user/**").access("hasRole('ROLE_ADMIN')")
-				.antMatchers("/article/list", "/article/show/*").permitAll()
-				.antMatchers("/article/add", "/article/edit", "/article/edit/*", "/article/delete/*").access("hasAnyRole('ROLE_ADMIN', 'ROLE_EDITOR')")	
+				.antMatchers("/user/register", "/login").not().authenticated()	// not working for /login*
+				.antMatchers("/user/**").access("hasRole('ROLE_ADMIN')") // dostêp do userów ma tylko admin
+				.antMatchers("/article/list", "/article/show/*").permitAll() // ka¿dy widzi listê artyku³ów i mo¿e je
+				.antMatchers("/article/add", "/article/edit", "/article/edit/*", "/article/delete/*").access("hasAnyRole('ROLE_ADMIN', 'ROLE_EDITOR')")
+				 // dostêp do edycji i usuwania ma tylko admin i edytor - przy edytorze nast¹pi póŸniej service-based authorization
 				.antMatchers("/article/*/comment/**").authenticated()
 				.antMatchers("/resources/**").permitAll()
 				.antMatchers("/", "/index").permitAll()
