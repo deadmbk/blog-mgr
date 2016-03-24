@@ -1,12 +1,20 @@
 package pl.edu.agh.blog.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomCollectionEditor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.ServletRequestDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,6 +40,21 @@ public class ArticlesController extends AbstractController {
 	
 	@Autowired
 	private UserService userService;
+	
+	@InitBinder
+	public void initBinder(ServletRequestDataBinder binder) {
+		binder.registerCustomEditor(List.class, "permittedUsers", new CustomCollectionEditor(List.class) {
+			protected Object convertElement(Object element) {
+				if (element != null) {
+					String username = element.toString();
+					User user = userService.getUserByUsername(username);
+					return user;
+				}
+				
+				return null;
+			}
+		});
+	}
 	
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	public ModelAndView list() {
@@ -64,7 +87,11 @@ public class ArticlesController extends AbstractController {
 	}
 	
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
-	public ModelAndView addingArticle(@ModelAttribute Article article, @RequestParam(value = "permittedUsers", required = false) String [] permittedUsers, final RedirectAttributes redirectAttributes) {
+	public ModelAndView addingArticle(@ModelAttribute @Valid Article article, BindingResult result, @RequestParam(value = "permittedUsers", required = false) List<String> usernames, final RedirectAttributes redirectAttributes) {
+		
+		if (result.hasErrors()) {
+			return new ModelAndView("article-add");
+		}
 		
 		String authorName = ((org.springframework.security.core.userdetails.User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
 		User author = userService.getUserByUsername(authorName);
@@ -73,7 +100,7 @@ public class ArticlesController extends AbstractController {
 		if (author != null) {
 			
 			article.setAuthor(author);
-			articleService.addArticle(article, permittedUsers);						
+			articleService.addArticle(article, getListOfUsersByUsernames(usernames));						
 			redirectAttributes.addFlashAttribute("FLASH_SUCCESS", "The article has been successfully created.");
 			
 		} else {			
@@ -81,6 +108,20 @@ public class ArticlesController extends AbstractController {
 		}
 	
 		return new ModelAndView("redirect:/article/list");		
+	}
+	
+	private List<User> getListOfUsersByUsernames(List<String> usernames) {
+		
+		List<User> users = new ArrayList<User>();
+		if (usernames != null) {
+			for (String username : usernames) {
+				User user = userService.getUserByUsername(username);
+				users.add(user);			
+			}
+		}
+		
+		
+		return users;
 	}
 	
 	@RequestMapping(value = "/edit/{slug}", method = RequestMethod.GET)
@@ -95,8 +136,8 @@ public class ArticlesController extends AbstractController {
 	}
 	
 	@RequestMapping(value = "/edit", method = RequestMethod.POST)
-	public ModelAndView edittingArticle(@ModelAttribute Article article, @RequestParam(value = "permittedUsers", required = false) String [] permittedUsers, final RedirectAttributes redirectAttributes) {	
-		articleService.updateArticle(article, permittedUsers);
+	public ModelAndView edittingArticle(@ModelAttribute Article article, @RequestParam(value = "permittedUsers", required = false) List<String> usernames, final RedirectAttributes redirectAttributes) {	
+		articleService.updateArticle(article, getListOfUsersByUsernames(usernames));
 		redirectAttributes.addFlashAttribute("FLASH_SUCCESS", "The article has been successfully edited.");
 		return new ModelAndView("redirect:/article/list");		
 	}

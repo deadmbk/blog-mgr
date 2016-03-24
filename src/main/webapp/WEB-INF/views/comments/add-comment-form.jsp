@@ -17,8 +17,7 @@
 		</div>
 
 		<div class="form-group">
-			<div class="col-sm-2"></div>
-			<div class="col-sm-10">
+			<div class="col-sm-10 col-sm-offset-2">
 				<input type="submit" value="Add comment" class="btn btn-primary" />
 			</div>
 		</div>

@@ -11,8 +11,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.OrderBy;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 
 @Entity
@@ -22,11 +24,15 @@ public class Article extends AbstractModel {
 
 	private static final long serialVersionUID = 6815122236810641480L;
 	
+	@NotEmpty
 	@Column(length = 50)
 	private String title;
 	
+	//@NotNull
 	@Column(length = 70)
 	private String slug;
+	
+	//@NotNull
 	private String content;
 	
 	private String access;

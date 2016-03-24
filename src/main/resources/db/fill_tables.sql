@@ -1,4 +1,4 @@
-﻿INSERT INTO roles VALUES 
+INSERT INTO roles VALUES 
 	(nextval('roles_id_seq'), 'ROLE_ADMIN'),
 	(nextval('roles_id_seq'), 'ROLE_EDITOR'),
 	(nextval('roles_id_seq'), 'ROLE_USER');

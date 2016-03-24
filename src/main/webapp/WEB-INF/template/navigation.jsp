@@ -21,8 +21,5 @@
 	<li><a href="<c:url value='/article/list' />">Articles</a></li>
 	<security:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_EDITOR')">
 		<li><a href="<c:url value='/article/add' />">Add article</a></li>
-	</security:authorize>
-	
-	
-		
+	</security:authorize>	
 </ul>

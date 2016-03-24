@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.edu.agh.blog.dao.intf.ArticleDao;
 import pl.edu.agh.blog.models.Article;
 import pl.edu.agh.blog.models.Comment;
+import pl.edu.agh.blog.models.User;
 import pl.edu.agh.blog.services.intf.ArticleService;
 
 @Service
@@ -26,44 +27,44 @@ public class ArticleServiceImpl extends AbstractServiceImpl implements ArticleSe
 	private ArticleDao articleDao;
 	
 	@Override
-	public void addArticle(Article article, String [] permittedUsers) {
+	public void addArticle(Article article, List<User> permittedUsers) {
 		
 		articleDao.addArticle(article);
 		
 		createAcl(article.getClass(), article.getId());
-		if (permittedUsers != null) createReaderPermission(article, permittedUsers);
+		if (permittedUsers != null && !permittedUsers.isEmpty()) createReaderPermission(article, permittedUsers);
 		
 		
 	}
 		
-	private void createReaderPermission(Article article, String [] permittedUsers) {
+	private void createReaderPermission(Article article, List<User> permittedUsers) {
 		
 		ObjectIdentity oid = new ObjectIdentityImpl(article);
 		MutableAcl acl = (MutableAcl) mutableAclService.readAclById(oid);
 		
-		for (String username : permittedUsers) {
-			this.insertAclEntry(acl, BasePermission.READ, username, true);
+		for (User user : permittedUsers) {
+			this.insertAclEntry(acl, BasePermission.READ, user.getUsername(), true);
 		}
 		
 		mutableAclService.updateAcl(acl);		
 	}
 	
 	@Override
-	public void updateArticle(Article article, String [] permittedUsers) {
+	public void updateArticle(Article article, List<User> permittedUsers) {
 		articleDao.updateArticle(article);
 		
 		updateAcl(article, permittedUsers);
 	}
 	
-	private void updateAcl(Article article, String [] permittedUsers) {
+	private void updateAcl(Article article, List<User> permittedUsers) {
 		
 		ObjectIdentity oid = new ObjectIdentityImpl(article);
 		MutableAcl acl = (MutableAcl) mutableAclService.readAclById(oid);
 		
 		this.deleteAclEntries(acl);
 		if (permittedUsers != null) {
-			for (String username : permittedUsers) {
-				this.insertAclEntry(acl, BasePermission.READ, username, true);
+			for (User user : permittedUsers) {
+				this.insertAclEntry(acl, BasePermission.READ, user.getUsername(), true);
 			}
 		}
 				

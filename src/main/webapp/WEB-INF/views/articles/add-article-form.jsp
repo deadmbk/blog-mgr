@@ -6,6 +6,8 @@
 <section>
 	<h2>Add article</h2>
 
+	<security:authentication var="session_user" property="principal" />
+
 	<form:form method="POST" commandName="article"
 		action="${pageContext.request.contextPath}/article/add"
 		class="form-horizontal">
@@ -15,6 +17,7 @@
 			<div class="col-sm-10">
 				<form:input path="title" class="form-control" placeholder="Title" />
 			</div>
+			<form:errors path="title" />
 		</div>
 
 		<div class="form-group">
@@ -22,6 +25,8 @@
 			<div class="col-sm-10">
 				<form:textarea path="content" class="form-control" rows="6" />
 			</div>
+			
+			<form:errors path="content" />
 		</div>
 
 		<div class="form-group">
@@ -41,15 +46,16 @@
 				<select name="permittedUsers" multiple="multiple"
 					class="form-control" size="5">
 					<c:forEach var="user" items="${users}">
-						<option value="${user.username}">${user.username}</option>
+						<c:if test="${session_user.username != null && session_user.username != user.username}">
+							<option value="${user.username}">${user.username}</option>
+						</c:if>
 					</c:forEach>
 				</select>
 			</div>
 		</div>
 
 		<div class="form-group">
-			<div class="col-sm-2"></div>
-			<div class="col-sm-10">
+			<div class="col-sm-10 col-sm-offset-2">
 				<input type="submit" value="Add article" class="btn btn-primary" />
 			</div>
 		</div>

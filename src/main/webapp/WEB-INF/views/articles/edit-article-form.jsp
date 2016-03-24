@@ -2,12 +2,14 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
+<%@ taglib uri="http://www.springframework.org/security/tags" prefix="security" %>
 
 <section>
 	<h2>Edit article</h2>
-	<form:form method="POST" commandName="article"
-		action="${pageContext.request.contextPath}/article/edit"
-		class="form-horizontal">
+	
+	<security:authentication var="session_user" property="principal" />
+	<form:form method="POST" commandName="article" action="${pageContext.request.contextPath}/article/edit" class="form-horizontal">
+		
 		<form:hidden path="id" />
 
 		<div class="form-group">
@@ -41,8 +43,8 @@
 				<select name="permittedUsers" multiple="multiple"
 					class="form-control" size="5">
 					<c:forEach var="user" items="${users}">
-						<c:if
-							test="${pageContext.request.userPrincipal.name != null && pageContext.request.userPrincipal.name != user.username}">
+					<%-- ${pageContext.request.userPrincipal.name != null && pageContext.request.userPrincipal.name != user.username} --%>
+						<c:if test="${session_user.username != null && session_user.username != user.username}">
 							<c:choose>
 								<c:when test="${permittedUsers.contains(user.username)}">
 									<option value="${user.username}" selected="selected">${user.username}</option>
@@ -58,8 +60,7 @@
 		</div>
 
 		<div class="form-group">
-			<div class="col-sm-2"></div>
-			<div class="col-sm-10">
+			<div class="col-sm-10 col-sm-offset-2">
 				<input type="submit" value="Edit article" class="btn btn-primary" />
 			</div>
 		</div>
