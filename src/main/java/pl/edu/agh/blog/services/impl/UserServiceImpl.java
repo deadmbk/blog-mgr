@@ -41,10 +41,15 @@ public class UserServiceImpl implements UserService {
 	public void deleteUser(int id) {
 		dao.deleteUser(id);
 	}
-
+	
 	@Override
 	public List<User> getUsers() {
 		return dao.getUsers();
+	}
+
+	@Override
+	public List<User> getUsersWithRole() {
+		return dao.getUsersWithRole();
 	}
 
 }

@@ -14,11 +14,13 @@
 			<div class="col-sm-10">
 				<form:textarea path="content" class="form-control" />
 			</div>
+			<form:errors path="content" />
 		</div>
 
 		<div class="form-group">
 			<div class="col-sm-10 col-sm-offset-2">
 				<input type="submit" value="Add comment" class="btn btn-primary" />
+				<a href="${pageContext.request.contextPath}/article/show/${slug}">Cancel</a>
 			</div>
 		</div>
 

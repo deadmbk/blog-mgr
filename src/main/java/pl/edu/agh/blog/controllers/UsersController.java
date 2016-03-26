@@ -1,12 +1,14 @@
 package pl.edu.agh.blog.controllers;
 
 import java.util.List;
-import java.util.Locale;
+
+import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,7 +37,7 @@ public class UsersController extends AbstractController {
 	public ModelAndView list() {
 		
 		ModelAndView modelAndView = new ModelAndView("user-list");
-		List<User> users = userService.getUsers();
+		List<User> users = userService.getUsersWithRole();
 		
 		modelAndView.addObject("users", users);
 		return modelAndView;		
@@ -52,7 +54,11 @@ public class UsersController extends AbstractController {
 	}
 	
 	@RequestMapping(value="/register", method=RequestMethod.POST)
-	public ModelAndView registeringUser(@ModelAttribute User user, final RedirectAttributes redirectAttributes) {
+	public ModelAndView registeringUser(@ModelAttribute @Valid User user, BindingResult result, final RedirectAttributes redirectAttributes) {
+		
+		if (result.hasErrors()) {								
+			return new ModelAndView("register");			
+		}
 		
 		Role role = roleService.getRoleByName("ROLE_USER");
 		user.setRole(role);
@@ -74,7 +80,12 @@ public class UsersController extends AbstractController {
 	}
 	
 	@RequestMapping(value="/edit", method=RequestMethod.POST)
-	public ModelAndView edittingUser(@ModelAttribute User user, final RedirectAttributes redirectAttributes) {		
+	public ModelAndView edittingUser(@ModelAttribute @Valid User user, BindingResult result, final RedirectAttributes redirectAttributes) {
+		
+		if (result.hasErrors()) {								
+			return new ModelAndView("user-edit", "roles", roleService.getRoles());			
+		}
+		
 		userService.updateUser(user);
 		redirectAttributes.addFlashAttribute("FLASH_SUCCESS", "User (id=" + user.getId() + ") has been successfully edited.");
 		return new ModelAndView("redirect:/user/list");

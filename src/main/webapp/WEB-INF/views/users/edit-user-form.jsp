@@ -14,6 +14,7 @@
 			<form:input path="username" class="form-control"
 				placeholder="Username" />
 		</div>
+		<form:errors path="username" />
 	</div>
 
 	<div class="form-group">
@@ -22,6 +23,7 @@
 			<form:password path="password" class="form-control"
 				placeholder="Password" />
 		</div>
+		<form:errors path="password" />
 	</div>
 
 	<div class="form-group">
@@ -36,9 +38,9 @@
 	</div>
 
 	<div class="form-group">
-		<div class="col-sm-2"></div>
-		<div class="col-sm-10">
+		<div class="col-sm-10 col-sm-offset-2">
 			<input type="submit" value="Register" class="btn btn-primary" />
+			<a href="${pageContext.request.contextPath}/user/list">Cancel</a>
 		</div>
 	</div>
 

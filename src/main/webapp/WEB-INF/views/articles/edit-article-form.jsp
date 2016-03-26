@@ -17,6 +17,7 @@
 			<div class="col-sm-10">
 				<form:input path="title" class="form-control" placeholder="Title" />
 			</div>
+			<form:errors path="title" />
 		</div>
 
 		<div class="form-group">
@@ -24,6 +25,7 @@
 			<div class="col-sm-10">
 				<form:textarea path="content" class="form-control" rows="6" />
 			</div>
+			<form:errors path="content" />
 		</div>
 
 		<div class="form-group">
@@ -35,6 +37,7 @@
 						path="access" value="PRV" /> Private
 				</label>
 			</div>
+			<form:errors path="access" />
 		</div>
 
 		<div class="form-group">
@@ -62,6 +65,7 @@
 		<div class="form-group">
 			<div class="col-sm-10 col-sm-offset-2">
 				<input type="submit" value="Edit article" class="btn btn-primary" />
+				<a href="${pageContext.request.contextPath}/article/show/${article.slug}">Cancel</a>
 			</div>
 		</div>
 

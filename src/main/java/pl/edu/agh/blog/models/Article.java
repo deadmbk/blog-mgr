@@ -12,6 +12,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.OrderBy;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -24,17 +25,18 @@ public class Article extends AbstractModel {
 
 	private static final long serialVersionUID = 6815122236810641480L;
 	
-	@NotEmpty
+	@NotEmpty(message = "{article.title.notEmpty}")
+	@Size(min=3, max=50, message = "{article.title.size}")
 	@Column(length = 50)
 	private String title;
 	
-	//@NotNull
 	@Column(length = 70)
 	private String slug;
 	
-	//@NotNull
+	@NotEmpty(message = "{article.content.notEmpty}")
 	private String content;
 	
+	@NotNull(message = "{article.access.notNull}")
 	private String access;
 	
 	@ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY)

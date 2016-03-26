@@ -12,5 +12,6 @@ public interface UserService {
 	public User getUserByUsername(String username);
 	public void deleteUser(int id);
 	public List<User> getUsers();
+	public List<User> getUsersWithRole();
 	
 }

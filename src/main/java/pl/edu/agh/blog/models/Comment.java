@@ -6,6 +6,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 
 @Entity
@@ -15,6 +16,7 @@ public class Comment extends AbstractModel {
 
 	private static final long serialVersionUID = 2524981079107498913L;
 	
+	@NotEmpty(message = "{comment.content.notEmpty}")
 	private String content;
 	
 	@ManyToOne(targetEntity = Article.class, fetch = FetchType.LAZY)

@@ -8,13 +8,9 @@ import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.propertyeditors.CustomCollectionEditor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.ServletRequestDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,21 +36,6 @@ public class ArticlesController extends AbstractController {
 	
 	@Autowired
 	private UserService userService;
-	
-	@InitBinder
-	public void initBinder(ServletRequestDataBinder binder) {
-		binder.registerCustomEditor(List.class, "permittedUsers", new CustomCollectionEditor(List.class) {
-			protected Object convertElement(Object element) {
-				if (element != null) {
-					String username = element.toString();
-					User user = userService.getUserByUsername(username);
-					return user;
-				}
-				
-				return null;
-			}
-		});
-	}
 	
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	public ModelAndView list() {
@@ -86,28 +67,40 @@ public class ArticlesController extends AbstractController {
 		return modelAndView;		
 	}
 	
+	private User getLoggedInUser() {		
+		String authorName = ((org.springframework.security.core.userdetails.User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+		// TODO: Nie potrzeba roli do tego
+		return userService.getUserByUsername(authorName);
+	}
+	
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
-	public ModelAndView addingArticle(@ModelAttribute @Valid Article article, BindingResult result, @RequestParam(value = "permittedUsers", required = false) List<String> usernames, final RedirectAttributes redirectAttributes) {
+	public ModelAndView addingArticle(@ModelAttribute @Valid Article article, BindingResult result, 
+			@RequestParam(value = "permittedUsers", required = false) List<String> usernames, final RedirectAttributes redirectAttributes) {
 		
 		if (result.hasErrors()) {
-			return new ModelAndView("article-add");
+			return new ModelAndView("article-add", "users", userService.getUsers());			
 		}
-		
-		String authorName = ((org.springframework.security.core.userdetails.User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
-		User author = userService.getUserByUsername(authorName);
-
-		// TODO exceptions
-		if (author != null) {
+					
+		try {
+			
+			User author = getLoggedInUser();
+			if (author == null) {
+				throw new Exception("Session user not found.");
+			}
 			
 			article.setAuthor(author);
 			articleService.addArticle(article, getListOfUsersByUsernames(usernames));						
 			redirectAttributes.addFlashAttribute("FLASH_SUCCESS", "The article has been successfully created.");
+			return new ModelAndView("redirect:/article/list");
 			
-		} else {			
+		} catch(Exception e) {
+			
+			e.printStackTrace();
+			
 			redirectAttributes.addFlashAttribute("FLASH_ERROR", "The problem has occured during processing the request.");			
+			return new ModelAndView("article-add", "users", userService.getUsers());		
 		}
-	
-		return new ModelAndView("redirect:/article/list");		
+				
 	}
 	
 	private List<User> getListOfUsersByUsernames(List<String> usernames) {
@@ -120,7 +113,6 @@ public class ArticlesController extends AbstractController {
 			}
 		}
 		
-		
 		return users;
 	}
 	
@@ -128,7 +120,7 @@ public class ArticlesController extends AbstractController {
 	public ModelAndView editArticlePage(@PathVariable String slug) {	
 		
 		Article article = articleService.getArticleBySlug(slug);
-		ModelAndView modelAndView = new ModelAndView("article-edit");		
+		ModelAndView modelAndView = new ModelAndView("article-edit");
 		modelAndView.addObject("article", article);
 		modelAndView.addObject("users", userService.getUsers());
 		modelAndView.addObject("permittedUsers", articleService.getPermittedUsers(article));
@@ -136,10 +128,27 @@ public class ArticlesController extends AbstractController {
 	}
 	
 	@RequestMapping(value = "/edit", method = RequestMethod.POST)
-	public ModelAndView edittingArticle(@ModelAttribute Article article, @RequestParam(value = "permittedUsers", required = false) List<String> usernames, final RedirectAttributes redirectAttributes) {	
-		articleService.updateArticle(article, getListOfUsersByUsernames(usernames));
-		redirectAttributes.addFlashAttribute("FLASH_SUCCESS", "The article has been successfully edited.");
-		return new ModelAndView("redirect:/article/list");		
+	public ModelAndView edittingArticle(@ModelAttribute @Valid Article article, BindingResult result, 
+			@RequestParam(value = "permittedUsers", required = false) List<String> usernames, final RedirectAttributes redirectAttributes) {	
+		
+		if (result.hasErrors()) {								
+			return new ModelAndView("article-edit", "users", userService.getUsers());			
+		}
+				
+		try {
+			
+			articleService.updateArticle(article, getListOfUsersByUsernames(usernames));
+			redirectAttributes.addFlashAttribute("FLASH_SUCCESS", "The article has been successfully edited.");
+			return new ModelAndView("redirect:/article/list");
+			
+		} catch(Exception e) {
+			
+			e.printStackTrace();			
+			redirectAttributes.addFlashAttribute("FLASH_ERROR", "The problem has occured during processing the request.");
+			
+			return new ModelAndView("article-edit", "users", userService.getUsers());						
+		}
+				
 	}
 	
 	// Usuwanie jest wyj¹tkowe, poniewa¿ nie mamy id ani obiektu, tylko slug. Konieczne jest najpierw pobranie obiektu i dalsze przetwarzanie na podstawie id.
@@ -163,15 +172,33 @@ public class ArticlesController extends AbstractController {
 	}
 	
 	@RequestMapping(value = "/{slug}/comment/add", method = RequestMethod.POST)
-	public ModelAndView addingComment(@ModelAttribute Comment comment, @PathVariable String slug) {
+	public ModelAndView addingComment(@ModelAttribute @Valid Comment comment, BindingResult result, 
+			@PathVariable String slug, final RedirectAttributes redirectAttributes) {
 		
-		String username = ((org.springframework.security.core.userdetails.User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
-		User author = userService.getUserByUsername(username);
+		if (result.hasErrors()) {
+			return new ModelAndView("comment-add", "slug", slug);				
+		}
 		
-		comment.setAuthor(author);
-		
-		articleService.addComment(slug, comment);
-		return new ModelAndView("redirect:/article/show/{slug}");
+		try {
+			
+			User author = getLoggedInUser();
+			if (author == null) {
+				throw new Exception("Session user not found.");
+			}
+
+			comment.setAuthor(author);
+			articleService.addComment(slug, comment);
+			redirectAttributes.addFlashAttribute("FLASH_SUCCESS", "The comment has been successfully added.");
+			return new ModelAndView("redirect:/article/show/{slug}");
+			
+		} catch(Exception e) {
+			
+			e.printStackTrace();
+			
+			redirectAttributes.addFlashAttribute("FLASH_ERROR", "The problem has occured during processing the request.");			
+			return new ModelAndView("comment-add", "slug", slug);				
+		}
+
 	}
 	
 	@RequestMapping(value = "/{slug}/comment/edit/{id}", method = RequestMethod.GET)
@@ -184,9 +211,27 @@ public class ArticlesController extends AbstractController {
 	}
 	
 	@RequestMapping(value = "/{slug}/comment/edit", method = RequestMethod.POST)
-	public ModelAndView edittingComment(@ModelAttribute Comment comment, @PathVariable String slug) {
-		articleService.updateComment(comment);
-		return new ModelAndView("redirect:/article/show/{slug}");
+	public ModelAndView edittingComment(@ModelAttribute @Valid Comment comment, BindingResult result, 
+			@PathVariable String slug, final RedirectAttributes redirectAttributes) {
+		
+		if (result.hasErrors()) {
+			return new ModelAndView("comment-edit", "slug", slug);				
+		}
+		
+		try {
+
+			articleService.updateComment(comment);
+			redirectAttributes.addFlashAttribute("FLASH_SUCCESS", "The comment has been successfully added.");
+			return new ModelAndView("redirect:/article/show/{slug}");
+			
+		} catch(Exception e) {
+			
+			e.printStackTrace();
+			
+			redirectAttributes.addFlashAttribute("FLASH_ERROR", "The problem has occured during processing the request.");			
+			return new ModelAndView("comment-edit", "slug", slug);				
+		}
+	
 	}
 	
 	@RequestMapping(value = "/{slug}/comment/delete/{id}", method = RequestMethod.GET)

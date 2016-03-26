@@ -59,9 +59,10 @@ public class UserDaoImpl extends AbstractDaoImpl implements UserDao {
 		criteria.add(Restrictions.eq("username", username));
 		
 		User toReturn = (User) criteria.uniqueResult();
-		if (toReturn != null) {
+		// Nie ma potrzeby pobierania roli
+		/*if (toReturn != null) {
 			Hibernate.initialize(toReturn.getRole());
-		}
+		}*/
 		
 		return toReturn;
 	}
@@ -72,9 +73,16 @@ public class UserDaoImpl extends AbstractDaoImpl implements UserDao {
 		toDelete.setId(id);
 		delete(toDelete);
 	}
-
+	
 	@Override
 	public List<User> getUsers() {
+		@SuppressWarnings("unchecked")
+		List<User> list = (List<User>) getSession().createCriteria(User.class).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();		
+		return list;
+	}
+
+	@Override
+	public List<User> getUsersWithRole() {
 		@SuppressWarnings("unchecked")
 		List<User> list = (List<User>) getSession().createCriteria(User.class).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
 		for (User entity : list) {

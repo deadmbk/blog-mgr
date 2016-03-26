@@ -1,7 +1,11 @@
 package pl.edu.agh.blog.config;
 
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.ReloadableResourceBundleMessageSource;
+import org.springframework.validation.Validator;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -33,4 +37,23 @@ public class WebAppConfig extends WebMvcConfigurerAdapter {
 		return urlBasedViewResolver;
 	}
 	
+	@Bean(name = "messageSource")
+	public MessageSource messageSource() {
+		ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
+		messageSource.setBasename("classpath:text");
+		messageSource.setDefaultEncoding("UTF-8");
+		return messageSource;
+	}
+	
+	@Bean(name = "validator")
+	public LocalValidatorFactoryBean validator() {
+		LocalValidatorFactoryBean factory = new LocalValidatorFactoryBean();
+		factory.setValidationMessageSource(messageSource());
+		return factory;
+	}
+	
+	@Override
+	public Validator getValidator() {
+		return validator();
+	}
 }

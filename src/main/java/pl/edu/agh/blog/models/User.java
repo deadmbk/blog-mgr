@@ -11,8 +11,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.OrderBy;
+import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
 @Table(name="users")
@@ -21,8 +23,13 @@ public class User extends AbstractModel {
 
 	private static final long serialVersionUID = 3177723440035291803L;
 	
+	@NotEmpty(message = "{user.username.notEmpty}")
+	@Size(min = 3, max = 30, message = "{user.username.size}")
 	@Column(length = 30)
 	private String username;
+	
+	@NotEmpty(message = "{user.password.notEmpty}")
+	@Size(min = 3, max = 60, message = "{user.password.size}")
 	private String password;
 	
 	@ManyToOne(targetEntity = Role.class, fetch = FetchType.LAZY)

@@ -38,6 +38,8 @@
 						path="access" value="PRV" /> Private
 				</label>
 			</div>
+			
+			<form:errors path="access" />
 		</div>
 
 		<div class="form-group">
@@ -57,6 +59,7 @@
 		<div class="form-group">
 			<div class="col-sm-10 col-sm-offset-2">
 				<input type="submit" value="Add article" class="btn btn-primary" />
+				<a href="${pageContext.request.contextPath}/article/list">Cancel</a>
 			</div>
 		</div>
 
