@@ -67,12 +67,6 @@ public class ArticlesController extends AbstractController {
 		return modelAndView;		
 	}
 	
-	private User getLoggedInUser() {		
-		String authorName = ((org.springframework.security.core.userdetails.User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
-		// TODO: Nie potrzeba roli do tego
-		return userService.getUserByUsername(authorName);
-	}
-	
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	public ModelAndView addingArticle(@ModelAttribute @Valid Article article, BindingResult result, 
 			@RequestParam(value = "permittedUsers", required = false) List<String> usernames, final RedirectAttributes redirectAttributes) {
@@ -102,20 +96,7 @@ public class ArticlesController extends AbstractController {
 		}
 				
 	}
-	
-	private List<User> getListOfUsersByUsernames(List<String> usernames) {
-		
-		List<User> users = new ArrayList<User>();
-		if (usernames != null) {
-			for (String username : usernames) {
-				User user = userService.getUserByUsername(username);
-				users.add(user);			
-			}
-		}
-		
-		return users;
-	}
-	
+
 	@RequestMapping(value = "/edit/{slug}", method = RequestMethod.GET)
 	public ModelAndView editArticlePage(@PathVariable String slug) {	
 		
@@ -240,4 +221,22 @@ public class ArticlesController extends AbstractController {
 		return new ModelAndView("redirect:/article/show/{slug}");
 	}
 
+	// --------------------------------------------------------------------------------------
+	private List<User> getListOfUsersByUsernames(List<String> usernames) {
+		
+		List<User> users = new ArrayList<User>();
+		if (usernames != null) {
+			for (String username : usernames) {
+				User user = userService.getUserByUsername(username);
+				users.add(user);			
+			}
+		}
+		
+		return users;
+	}
+	
+	private User getLoggedInUser() {		
+		String authorName = ((org.springframework.security.core.userdetails.User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+		return userService.getUserByUsername(authorName);
+	}
 }
