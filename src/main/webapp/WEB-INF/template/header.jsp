@@ -2,7 +2,7 @@
 <%@ taglib uri="http://www.springframework.org/security/tags" prefix="security" %>
 
 <div class="col-md-6">
-	<h1>Blog application</h1>
+	<h1>A&amp;A test application</h1>
 </div>
 
 <div class="col-md-6">	

@@ -1,10 +1,20 @@
 @CHARSET "UTF-8";
+header {
+	margin-top: 0px !important;
+}
 
 header div:first-child {
 	float: left;
 }
 
+header div:first-child h1 {
+    float: left;
+    margin: 0;
+    font-family: Helvetica, Arial, sans-serif;
+}
+
 header div:last-child {
+	padding: 15px 0 0;
 }
 
 header div:last-child ul {
