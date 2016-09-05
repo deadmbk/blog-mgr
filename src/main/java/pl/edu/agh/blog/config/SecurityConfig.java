@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
@@ -26,6 +27,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	public void configureAuthentication(AuthenticationManagerBuilder auth) throws Exception {
 
+//		auth.ldapAuthentication()
+//			.userDetailsContextMapper(userDetailsContextMapper())
+//			.userDnPatterns("uid={0},ou=people")
+//			.groupSearchBase("ou=groups")
+//			.groupSearchFilter("(member={0})")
+//			.contextSource()
+//				.url("ldap://localhost:10389/dc=example,dc=com");
+		
 		auth.jdbcAuthentication().dataSource(dataSource)
 			.usersByUsernameQuery("SELECT username, password, 1 FROM users WHERE username=?")
 			.authoritiesByUsernameQuery("SELECT username, name FROM users JOIN roles ON roles.id = users.role_id WHERE username=?")
@@ -70,5 +79,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	public PasswordEncoder passwordEncoder() {
 		PasswordEncoder encoder = new BCryptPasswordEncoder();
 		return encoder;
+	}
+	
+	@Bean
+	public UserDetailsContextMapper userDetailsContextMapper() {
+		return new CustomUserDetailsContextMapper();
 	}
 }

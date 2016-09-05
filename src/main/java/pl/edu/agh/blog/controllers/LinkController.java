@@ -7,6 +7,8 @@ import java.util.Locale;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -22,8 +24,8 @@ public class LinkController extends AbstractController {
 	public ModelAndView home(@RequestParam(value = "logout", required = false) String logout, Locale locale) {
 		
 		ModelAndView modelAndView = new ModelAndView("default");
-		logger.info("Welcome home! The client locale is {}.", locale);
-		
+		logger.info("Welcome home! The client locale is {}. You are logged in as {}.", locale, SecurityContextHolder.getContext().getAuthentication().getName());
+
 		Date date = new Date();
 		DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG, locale);
 		

@@ -13,8 +13,7 @@
 
 	<form name="loginForm" action="<c:url value='/login' />" method="POST" class="form-horizontal">
 
-		<input type="hidden" name="${_csrf.parameterName}"
-			value="${_csrf.token}" />
+		<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
 
 		<div class="form-group">
 			<label for="username" class="col-sm-2 control-label">Username</label>
